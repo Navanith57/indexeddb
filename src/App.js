@@ -1,23 +1,16 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import data from "./data";
+import Questions from "./components/Questions/Questions";
 
 function App() {
+  const loaddata=[...data];
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="cont">
+      <div className="header">
+        <h1>Header</h1>
+      </div>
+      <div className="q"><Questions dta={loaddata}/></div>
+      <hr/>
     </div>
   );
 }
