@@ -22,8 +22,9 @@ export async function saveLearningPath(id, learningPath) {
 }
 
 
-export async function getLearningPath() {
+export async function getLearningPathById(journey_id) {
     const db = await initDB();
-    return db.getAll(STORE_NAME);
+    return db.getAll(STORE_NAME,journey_id);
 }
+
 
