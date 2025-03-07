@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import useStateRef from 'react-usestateref';
 import './Questions.css';
-import { saveLearningPath } from '../../utils/IndexedDB';
+import { saveLearningPath,getLearningPathById } from '../../utils/IndexedDB';
 
 const Questions = () => {
   const [questions, setQuestions, questionsRef] = useStateRef([]);
@@ -16,21 +16,32 @@ const Questions = () => {
 
   useEffect(() => {
     const fetchAndStoreQuestions = async () => {
-      if (!journeyId) return;
-
-      setLoading(true);
-      const fetchedQuestions = await fetchAllQuestions(journeyId);
-
-      if (fetchedQuestions.length > 0) {
-        await saveLearningPath(journeyId, fetchedQuestions); 
+      if (!journeyId) return;  
+  
+      setLoading(true); 
+  
+    
+      const storedData = await getLearningPathById(journeyId);
+      if (storedData) {
+        setQuestions(storedData.learningPath);
+        setLoading(false);
+        return; 
       }
-
-      setQuestions(fetchedQuestions);
+  
+     
+      const fetchedQuestions = await fetchAllQuestions(journeyId);
+      
+      if (fetchedQuestions.length > 0) {
+        await saveLearningPath(journeyId, fetchedQuestions);  
+      }
+  
+      setQuestions(fetchedQuestions);  
       setLoading(false);
     };
-
+  
     fetchAndStoreQuestions();
   }, [journeyId]);
+  
 
   const fetchAllQuestions = async (journeyId) => {
     let offset = 0;
@@ -42,7 +53,7 @@ const Questions = () => {
       const options = {
         method: 'GET',
         headers: {
-          'Authorization': 'eyJraWQiOiJNcXVjZlMxTStZaEU5ZGxldHZvalwvQnNLSm13emhqNkt1UUZDd2FkTm1NZz0iLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiIwMWUzY2Q2YS05MDIxLTcwOWItYTI3Zi1kODExMGRlYzQ5ZGUiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiY3VzdG9tOmxhc3ROYW1lIjoiU3R1ZGVudCIsImlzcyI6Imh0dHBzOlwvXC9jb2duaXRvLWlkcC5hcC1zb3V0aC0xLmFtYXpvbmF3cy5jb21cL2FwLXNvdXRoLTFfTWNSUktUdG8zIiwiY3VzdG9tOnVzZXJfaWQiOiI2NzA3NWFjZTY2Zjg1ZGZhOGIzMDg1ZDUiLCJwaG9uZV9udW1iZXJfdmVyaWZpZWQiOnRydWUsImNvZ25pdG86dXNlcm5hbWUiOiI5ODc4IiwicHJlZmVycmVkX3VzZXJuYW1lIjoiOTg3ODY3MDYxNTAwMzJiZWQwYTI2Nzk1ZjJjNiIsImN1c3RvbTpGYWlsZWRMb2dpbkF0dGVtcHRzIjoiMCIsIm9yaWdpbl9qdGkiOiI3YWJlYjM2My03ZGNhLTQ4ZDItOWNjMC0wZDZjMGM1MjA3MWUiLCJhdWQiOiI1bDk4aG5rZzhlMGk3MWYybmFxZXI2MDNzNyIsImN1c3RvbTpzY2hvb2xfaWQiOiI2NzA2MTUwMDMyYmVkMGEyNjc5NWYyYzYiLCJjdXN0b206c2VnbWVudCI6IlNjaG9vbFN0dWRlbnQiLCJldmVudF9pZCI6IjJkNDI1YjM3LTgzZGMtNGUzZS1iYmE3LTljNzhhMzEwNWFiOCIsImN1c3RvbTpmaXJzdE5hbWUiOiJSYWdoYXZlbmRyYSIsInRva2VuX3VzZSI6ImlkIiwiYXV0aF90aW1lIjoxNzQxMjc4MzI2LCJwaG9uZV9udW1iZXIiOiIrOTE5ODg2NTQzMjEwIiwiaWQiOiI2NzA3NWFjZTY2Zjg1ZGZhOGIzMDg1ZDUiLCJleHAiOjE3NDEyODE5MjYsImlhdCI6MTc0MTI3ODMyNywianRpIjoiZWZjZWEyYjUtNjU0My00MWU0LWFmODQtMDA1ZWE5NGZkOWRkIiwiZW1haWwiOiJyYWdoYXZlbmRyYS5rbnZAY29zY2hvb2wuYWkifQ.l7VWbUst9YFOU2Y-UG_QDn3zFvoHbsQYIycBj7egUHI4DPzBsdEPr93PISUNKZ0aJtTQEyrj31L_M7-XZDvtvijmqhbylsRyJ3JAYSrxmmYc4SyY7_G2jMy64MIf_9rCkiQ6gSX1Sh50PsluqqfkMpvfBgZzhi8eaCIM3DdWyxF-MQ-b8FIA1WFX-kwdri8FbqD9aV-lPRJYdUk4nlqsWp9zrWGydI6M0G0q9B_D_VFR3qIs2U9gksBoNBbOjr79DTvX9YpwQKFO5f4Q-saOVr8QPxmrVQaH10FSyZAOh9iYGuIDGyOWq5ZEivD1qNxg3wG2f0oHWliEENQqCrXd0g',
+          'Authorization': 'eyJraWQiOiJNcXVjZlMxTStZaEU5ZGxldHZvalwvQnNLSm13emhqNkt1UUZDd2FkTm1NZz0iLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiIwMWUzY2Q2YS05MDIxLTcwOWItYTI3Zi1kODExMGRlYzQ5ZGUiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiY3VzdG9tOmxhc3ROYW1lIjoiU3R1ZGVudCIsImlzcyI6Imh0dHBzOlwvXC9jb2duaXRvLWlkcC5hcC1zb3V0aC0xLmFtYXpvbmF3cy5jb21cL2FwLXNvdXRoLTFfTWNSUktUdG8zIiwiY3VzdG9tOnVzZXJfaWQiOiI2NzA3NWFjZTY2Zjg1ZGZhOGIzMDg1ZDUiLCJwaG9uZV9udW1iZXJfdmVyaWZpZWQiOnRydWUsImNvZ25pdG86dXNlcm5hbWUiOiI5ODc4IiwicHJlZmVycmVkX3VzZXJuYW1lIjoiOTg3ODY3MDYxNTAwMzJiZWQwYTI2Nzk1ZjJjNiIsImN1c3RvbTpGYWlsZWRMb2dpbkF0dGVtcHRzIjoiMCIsIm9yaWdpbl9qdGkiOiI3YWJlYjM2My03ZGNhLTQ4ZDItOWNjMC0wZDZjMGM1MjA3MWUiLCJhdWQiOiI1bDk4aG5rZzhlMGk3MWYybmFxZXI2MDNzNyIsImN1c3RvbTpzY2hvb2xfaWQiOiI2NzA2MTUwMDMyYmVkMGEyNjc5NWYyYzYiLCJjdXN0b206c2VnbWVudCI6IlNjaG9vbFN0dWRlbnQiLCJldmVudF9pZCI6IjJkNDI1YjM3LTgzZGMtNGUzZS1iYmE3LTljNzhhMzEwNWFiOCIsImN1c3RvbTpmaXJzdE5hbWUiOiJSYWdoYXZlbmRyYSIsInRva2VuX3VzZSI6ImlkIiwiYXV0aF90aW1lIjoxNzQxMjc4MzI2LCJwaG9uZV9udW1iZXIiOiIrOTE5ODg2NTQzMjEwIiwiaWQiOiI2NzA3NWFjZTY2Zjg1ZGZhOGIzMDg1ZDUiLCJleHAiOjE3NDEzMjYzODMsImlhdCI6MTc0MTMyMjc4NCwianRpIjoiOTdmZDhjMjAtYjgxNC00ZGRhLWJkZmUtZTI1NzRmNzY0ODM0IiwiZW1haWwiOiJyYWdoYXZlbmRyYS5rbnZAY29zY2hvb2wuYWkifQ.PwXucQ_BkEs9RAi3sZTPIlUN-ae2d8WcOIjo8yTdFuTqMAvuK2djXOSmOtlgnrjjn6Oc5d3z3IjGZ6kVvpgs28ylKpWmAtbDl9upYrNXAsxxRzY8A0zR1420Pxex-AQIfjMut___c3Si-I-M4TcywDEpCDnsct0MEe20L3Xa6tzDZpUaMzhGbmvu801vwP_Xd_RXjyiHg2DGdrG2fbJgma3z0cPyxiNc3jrJUICLHTbqV8ee4wLQkrKyjJ0W_EWI3EkyOw6PJMQ93v8ftODb7WG0hZ0kpR3gC_Xdc6xAor0wB9QBJtCX4842uA9xnH4n5At6egASlnRvhJ-nT-lZiQ',
           'X-User-id': '67075ace66f85dfa8b3085d5',
         }
       };
